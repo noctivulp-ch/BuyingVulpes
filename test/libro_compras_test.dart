@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:buying_vulpes/core/db/app_database.dart';
 import 'package:buying_vulpes/core/db/db_providers.dart';
 import 'package:buying_vulpes/core/medida.dart';
-import 'package:buying_vulpes/core/mes.dart';
 import 'package:buying_vulpes/features/compra/compra_dao.dart';
 import 'package:buying_vulpes/features/compra/compra_model.dart';
 import 'package:buying_vulpes/features/compra/libro_compras.dart';
