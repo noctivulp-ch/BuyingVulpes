@@ -9,7 +9,7 @@ PDF archivado en un calendario para comparar después.
 
 | Carpeta | Qué hay |
 |---|---|
-| [arquitectura/](arquitectura/) | Stack, [datos](arquitectura/datos.md), [gestión de estado](arquitectura/gestion-estado.md) |
+| [arquitectura/](arquitectura/) | Stack, [datos](arquitectura/datos.md), [gestión de estado](arquitectura/gestion-estado.md), [qué se heredó de VulpTiketing](arquitectura/herencia-de-vulptiketing.md) |
 | [funciones/](funciones/) | [Catálogo](funciones/catalogo.md), [la compra](funciones/compra.md), [historial y PDF](funciones/historial.md) |
 | [decisiones/](decisiones/index.md) | ADRs numerados: qué se decidió y por qué |
 | [pantallas/](pantallas/flujo.md) | Las tres ventanas (Compra, Historial, Ajustes) y cómo se pasa de una a otra |
