@@ -12,7 +12,7 @@ PDF archivado en un calendario para comparar después.
 | [arquitectura/](arquitectura/) | Stack, [datos](arquitectura/datos.md), [gestión de estado](arquitectura/gestion-estado.md) |
 | [funciones/](funciones/) | [Catálogo](funciones/catalogo.md), [la compra](funciones/compra.md), [historial y PDF](funciones/historial.md) |
 | [decisiones/](decisiones/index.md) | ADRs numerados: qué se decidió y por qué |
-| [pantallas/](pantallas/flujo.md) | Las ventanas y cómo se pasa de una a otra |
+| [pantallas/](pantallas/flujo.md) | Las tres ventanas (Compra, Historial, Ajustes) y cómo se pasa de una a otra |
 | [referencias/](referencias/apps-de-referencia.md) | Las apps que se miraron antes de diseñar |
 | `../features/*.feature` | La verdad funcional cerrada, en Gherkin |
 

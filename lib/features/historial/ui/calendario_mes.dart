@@ -4,6 +4,12 @@ import 'package:wulf_flutter/wulf_flutter.dart';
 
 /// Un mes con los días que tienen compras marcados. Solo dibuja y avisa: qué
 /// días llevan marca y qué pasa al tocar uno lo decide quien lo usa.
+///
+/// **Ocupa el alto que le den.** Las seis semanas se reparten el espacio con
+/// `Expanded`, no con celdas de tamaño fijo: en un teléfono de pie el
+/// calendario llena la mitad de arriba sin dejar hueco ni pedir scroll, y en
+/// una pantalla ancha crece con ella. Siempre seis filas, aunque el mes quepa
+/// en cinco: así la cuadrícula no cambia de alto al pasar de mes.
 class CalendarioMes extends StatelessWidget {
   const CalendarioMes({
     super.key,
@@ -35,9 +41,30 @@ class CalendarioMes extends StatelessWidget {
     final puedeAvanzar = mes.isBefore(esteMes);
     final titulo = DateFormat('MMMM y', 'es').format(mes);
 
+    // Las casillas del mes, en filas de siete, con las seis semanas siempre.
+    final celdas = <Widget>[
+      for (var i = 0; i < huecos; i++) const SizedBox.shrink(),
+      for (var dia = 1; dia <= diasDelMes; dia++)
+        _Dia(
+          numero: dia,
+          conCompras: diasConCompras.contains(dia),
+          esHoy: hoy.year == mes.year && hoy.month == mes.month && hoy.day == dia,
+          elegido: seleccionado != null &&
+              seleccionado!.year == mes.year &&
+              seleccionado!.month == mes.month &&
+              seleccionado!.day == dia,
+          acento: tema.colorScheme.primary,
+          sobreAcento: tema.colorScheme.onPrimary,
+          textoApagado: laca.textoAtenuadoEnBandeja,
+          onTap: () => onDia(DateTime(mes.year, mes.month, dia)),
+        ),
+    ];
+    while (celdas.length < 42) {
+      celdas.add(const SizedBox.shrink());
+    }
+
     return WulfPozo(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -60,30 +87,20 @@ class CalendarioMes extends StatelessWidget {
               ),
             ],
           ),
-          GridView.count(
-            crossAxisCount: 7,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+          Row(
             children: [
               for (final d in _semana)
-                Center(child: Text(d, style: tema.textTheme.labelSmall)),
-              for (var i = 0; i < huecos; i++) const SizedBox.shrink(),
-              for (var dia = 1; dia <= diasDelMes; dia++)
-                _Dia(
-                  numero: dia,
-                  conCompras: diasConCompras.contains(dia),
-                  esHoy: hoy.year == mes.year && hoy.month == mes.month && hoy.day == dia,
-                  elegido: seleccionado != null &&
-                      seleccionado!.year == mes.year &&
-                      seleccionado!.month == mes.month &&
-                      seleccionado!.day == dia,
-                  acento: tema.colorScheme.primary,
-                  sobreAcento: tema.colorScheme.onPrimary,
-                  textoApagado: laca.textoAtenuadoEnBandeja,
-                  onTap: () => onDia(DateTime(mes.year, mes.month, dia)),
-                ),
+                Expanded(child: Center(child: Text(d, style: tema.textTheme.labelSmall))),
             ],
           ),
+          for (var semana = 0; semana < 6; semana++)
+            Expanded(
+              child: Row(
+                children: [
+                  for (var i = 0; i < 7; i++) Expanded(child: celdas[semana * 7 + i]),
+                ],
+              ),
+            ),
         ],
       ),
     );

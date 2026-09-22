@@ -45,8 +45,14 @@
 - Casilla: marcar para anotar. `[✎]`: editar producto.
 - El botón del pie aparece con el primer marcado y anota todos.
 
-**Historial**: calendario del mes + compras del mes o del día tocado →
-detalle de la compra → PDF.
+**Historial**: sin scroll de página. El calendario llena el alto que le toca
+(seis semanas siempre, repartidas con `Expanded`) y la lista de compras del
+mes o del día se desplaza en su propia parte: de pie, calendario arriba y
+lista abajo; con ancho, lado a lado. Tocar una compra → detalle → PDF.
+
+**Ajustes** (tercera ventana): tema (claro/oscuro/sistema), acento (oro/jade/
+peltre) y Optimización (los efectos pesados de Wulfenite, hoy el relieve
+grabado). Se guardan en `shared_preferences`, no en la base: no son datos.
 
 ## Diálogos
 

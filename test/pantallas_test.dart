@@ -5,11 +5,14 @@ import 'package:buying_vulpes/features/compra/compra_model.dart';
 import 'package:buying_vulpes/features/historial/factura_pdf_service.dart';
 import 'package:buying_vulpes/features/historial/historial_provider.dart';
 import 'package:buying_vulpes/core/medida.dart';
+import 'package:buying_vulpes/features/configuracion/preferencias_notifier.dart';
+import 'package:buying_vulpes/features/historial/ui/calendario_mes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wulf_flutter/wulf_flutter.dart';
 
@@ -40,6 +43,8 @@ void main() {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
     await initializeDateFormatting('es');
+    // Las preferencias van por un plugin nativo que en pruebas no existe.
+    SharedPreferences.setMockInitialValues({});
   });
 
   Future<ProviderContainer> montar(WidgetTester tester, {Size tamano = const Size(412, 915)}) async {
@@ -108,6 +113,37 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing);
   });
 
+  pruebaDePantalla('el calendario llena el alto del historial sin scroll de página', (tester) async {
+    await montar(tester);
+    await tester.tap(find.text('Historial'));
+    await asentar(tester);
+
+    final calendario = tester.getRect(find.byType(CalendarioMes));
+    final pantalla = tester.view.physicalSize.height;
+    // Más de un tercio del alto es "abarca el espacio", no un cuadro fijo de
+    // celdas de 40 px. Y la pantalla entera no se desplaza: la lista de abajo
+    // tiene su propio scroll.
+    expect(calendario.height, greaterThan(pantalla / 3), reason: 'el calendario no crece con la pantalla');
+    // El único `Scrollable` de la pantalla es el de la lista de compras, y
+    // con la lista vacía ni ese: la página entera no se desplaza.
+    expect(find.byType(Scrollable), findsNothing, reason: 'la página del historial no se desplaza');
+  });
+
+  pruebaDePantalla('ajustes cambia el tema y el acento de la app entera', (tester) async {
+    final container = await montar(tester);
+    await tester.tap(find.text('Ajustes'));
+    await asentar(tester);
+
+    await tester.tap(find.text('Oscuro'));
+    await asentar(tester);
+    await tester.tap(find.text('Oro'));
+    await asentar(tester);
+
+    final prefs = container.read(preferenciasProvider).value!;
+    expect(prefs.modoTema, ModoTema.oscuro);
+    expect(prefs.acento, WulfAcento.oro);
+  });
+
   test('el PDF se construye con el ₡ y las dos secciones', () async {
     final compra = Compra(
       id: 'c',
@@ -131,3 +167,7 @@ void main() {
     expect(bytes.length, greaterThan(5000), reason: 'lleva las fuentes incrustadas');
   });
 }
+
+// ── Calendario y ajustes ──────────────────────────────────────────────────────
+// (añadido tras la primera revisión del dueño: "que abarque el espacio que
+// tenga disponible y no ocupe un scroll siempre")

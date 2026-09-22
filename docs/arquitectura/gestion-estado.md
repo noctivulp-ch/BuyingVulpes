@@ -17,6 +17,8 @@ nunca lo guardan en un campo: en VulpTiketing, un DAO cacheado en `build()`
 apuntaba a una conexión cerrada tras restaurar un backup y fallaba una vez de
 cada dos.
 
+| `PreferenciasNotifier` | cómo se ve la app | cambiarModoTema, cambiarAcento, alternarEfecto | guarda en `shared_preferences`, no en SQLite: no son datos ni viajan en un respaldo |
+
 ## Providers derivados (solo leen)
 
 | Provider | Qué da |
