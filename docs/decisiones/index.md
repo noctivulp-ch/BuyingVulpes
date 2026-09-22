@@ -8,3 +8,4 @@
 | [0004](0004-la-linea-ensena-al-catalogo.md) | Corregir el precio en la línea actualiza el producto, de fábrica | Aceptada |
 | [0005](0005-una-compra-en-curso-persistida.md) | Una sola compra en curso, guardada en la base | Aceptada |
 | [0006](0006-wulfenite-desde-el-primer-dia.md) | La app nace con `wulf_flutter`, acento jade | Aceptada |
+| [0007](0007-libros-rodantes-la-maquina-de-escribir.md) | Libros de compras rodantes, uno por año: la "máquina de escribir" | Aceptada |

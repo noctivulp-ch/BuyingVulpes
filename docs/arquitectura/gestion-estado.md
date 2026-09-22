@@ -19,14 +19,22 @@ cada dos.
 
 | `PreferenciasNotifier` | cómo se ve la app | cambiarModoTema, cambiarAcento, alternarEfecto | guarda en `shared_preferences`, no en SQLite: no son datos ni viajan en un respaldo |
 
+## El libro (no es Notifier)
+
+`LibroComprasService` (`features/compra/libro_compras.dart`) sabe qué libro
+está abierto, lo adjunta, lo rota por año y abre los cerrados para leer. No
+tiene estado propio: el índice está en la base. Lo usan `AppDatabase.abrir`
+(adjuntar), `CompraEnCursoNotifier` (rotar al abrir compra, recontar al
+finalizar) y los providers del historial (leer un año cerrado).
+
 ## Providers derivados (solo leen)
 
 | Provider | Qué da |
 |---|---|
 | `tiendasActivasProvider` | las tiendas sin `deleted_at` |
 | `productosPorTiendaProvider` | `Map<tiendaId, List<Producto>>` de los activos |
-| `comprasDelMesProvider(Mes)` | las finalizadas de un mes; lo invalida `finalizar()` |
-| `compraDetalladaProvider(id)` | una compra cerrada con sus líneas y su `ResumenCompra` |
+| `comprasDelMesProvider(Mes)` | las finalizadas de un mes, del libro que cubra ese mes (abierto o cerrado); lo invalida `finalizar()` |
+| `compraDetalladaProvider(ClaveDeCompra)` | una compra con sus líneas y su `ResumenCompra`; la clave lleva el mes para saber en qué libro buscar |
 
 Quién ve qué es presentación: la lista base de cada Notifier trae todo,
 archivados incluidos.

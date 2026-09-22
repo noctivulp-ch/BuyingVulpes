@@ -19,3 +19,10 @@ Feature: History and PDF breakdown
     Then a PDF is written to the app's documents folder and opened with the system viewer
     And it contains one table per store, store totals, and the overall totals with the budget comparison
     And amounts are printed with the colón sign, using the embedded Noto Sans fonts
+
+  Scenario: Purchases live in yearly ledger files (the "typewriter")
+    Given purchases are stored in one SQLite ledger file per calendar year, attached while it is the current year
+    When the first purchase of a new year is opened
+    Then the previous year's ledger is closed and left untouched, and a new one is opened ([0007])
+    And no purchase is ever moved or deleted when a ledger closes
+    And the history can read a closed year by opening its file read-only, without restoring anything

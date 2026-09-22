@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:buying_vulpes/core/db/app_database.dart';
 import 'package:buying_vulpes/core/db/db_providers.dart';
 import 'package:buying_vulpes/core/medida.dart';
 import 'package:buying_vulpes/features/compra/compra_dao.dart';
 import 'package:buying_vulpes/features/compra/compra_en_curso_notifier.dart';
+import 'package:buying_vulpes/features/compra/libro_compras.dart';
 import 'package:buying_vulpes/features/historial/historial_provider.dart';
 import 'package:buying_vulpes/features/producto/producto_model.dart';
 import 'package:buying_vulpes/features/producto/producto_notifier.dart';
@@ -25,6 +28,8 @@ void main() {
 
   late Database db;
   late ProviderContainer container;
+  late Directory carpeta;
+  late LibroComprasService libros;
 
   final walmart = Tienda(id: 'w', nombre: 'Walmart', updatedAt: DateTime(2026));
   final arroz = Producto(
@@ -44,7 +49,17 @@ void main() {
       options: OpenDatabaseOptions(singleInstance: false),
     );
     await AppDatabase.crearEsquema(db);
-    container = ProviderContainer(overrides: [databaseProvider.overrideWith((ref) async => db)]);
+    // Los libros son archivos de verdad en una carpeta temporal, adjuntados a
+    // la base en memoria: es exactamente lo que hace la app.
+    carpeta = Directory.systemTemp.createTempSync('bv-libros');
+    libros = LibroComprasService(directorio: carpeta.path);
+    await libros.adjuntarAbierto(db);
+    container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWith((ref) async => db),
+        libroComprasServiceProvider.overrideWith((ref) async => libros),
+      ],
+    );
     await container.read(tiendaNotifierProvider.notifier).crear(walmart);
     await container.read(productoNotifierProvider.notifier).crear(arroz);
     await container.read(productoNotifierProvider.notifier).crear(leche);
@@ -52,7 +67,9 @@ void main() {
 
   tearDown(() async {
     container.dispose();
+    await libros.desadjuntar(db);
     await db.close();
+    carpeta.deleteSync(recursive: true);
   });
 
   CompraEnCursoNotifier carrito() => container.read(compraEnCursoProvider.notifier);
@@ -125,7 +142,9 @@ void main() {
     final hoy = DateTime.now();
     final delMes = await container.read(comprasDelMesProvider(Mes(hoy.year, hoy.month)).future);
     expect(delMes.map((c) => c.id), [cerrada.id]);
-    final detalle = await container.read(compraDetalladaProvider(cerrada.id).future);
+    final detalle = await container.read(
+      compraDetalladaProvider(ClaveDeCompra(cerrada.id, Mes.de(cerrada.finalizadaEn!))).future,
+    );
     expect(detalle!.lineas, hasLength(2), reason: 'las no compradas también quedan en el desglose');
     expect(detalle.resumen.articulosEnCarrito, 1);
   });
@@ -135,6 +154,7 @@ void main() {
   });
 
   test('la compra cerrada sobrevive a que el producto se archive', () async {
+    // (las líneas se leen del libro adjunto: `linea_compra` resuelve ahí)
     await carrito().agregarProductos([(arroz, walmart)]);
     final cerrada = (await carrito().finalizar())!;
 

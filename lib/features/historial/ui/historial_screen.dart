@@ -124,12 +124,12 @@ class _FilaCompra extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detalle = ref.watch(compraDetalladaProvider(compra.id)).valueOrNull;
+    final detalle = ref.watch(compraDetalladaProvider(ClaveDeCompra(compra.id, Mes.de(compra.finalizadaEn!)))).valueOrNull;
     final resumen = detalle?.resumen;
     final tema = Theme.of(context);
     return WulfPozo(
       onTap: () => Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => DetalleCompraScreen(compraId: compra.id)),
+        MaterialPageRoute<void>(builder: (_) => DetalleCompraScreen(clave: ClaveDeCompra(compra.id, Mes.de(compra.finalizadaEn!)))),
       ),
       child: Row(
         children: [

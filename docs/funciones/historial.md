@@ -1,5 +1,11 @@
 # Historial y desglose en PDF
 
+## De dónde salen
+
+De los **libros**: un archivo por año ([0007](../decisiones/0007-libros-rodantes-la-maquina-de-escribir.md)).
+El año en curso está adjunto; un año anterior se abre solo para leer cuando
+el calendario lo pide, y se cierra. No hay "restaurar" para mirar atrás.
+
 ## Calendario
 
 Un mes por pantalla, como el de VulpTiketing: los días con compras llevan el

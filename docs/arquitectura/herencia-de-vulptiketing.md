@@ -13,13 +13,13 @@ reutilizables en el vault (`Obsidia/AppCreator/conceptos/`, empezar por
 | *Revertir/anular* un registro cerrado | ❌ | Nadie pidió deshacer una compra finalizada. Si hace falta, es `anulada_en` + motivo, no `DELETE` |
 | **Tablas sincronizables** — UUID, `updated_at`, `deleted_at` | ✅ la forma | Tienda y producto llevan las tres; compra y línea, `updated_at`. Sync no hay: un solo aparato hoy. El esquema no cambia cuando lo haya |
 | **Notifier por entidad, sin CRUD genérico, DAO por llamada** | ✅ | `TiendaNotifier`, `ProductoNotifier`, `CompraEnCursoNotifier`, `PreferenciasNotifier`; `ResumenCompra` puro. Reglas en `CLAUDE.md` |
-| **Migraciones probadas sobre base vieja** | ✅ el patrón, ❌ la necesidad | Esquema v1, ningún aparato con datos. `crearEsquema` es público para que la prueba de migración se escriba igual que en tiketing el día que haga falta |
+| **Migraciones probadas sobre base vieja** | ✅ | v1 → v2 (`migrarComprasALibro`) probada sobre una base v1 real y aplicada a la base del dueño |
 | **Versión única** (`pubspec` ↔ `version.dart` con prueba) | ❌ todavía | No hay pantalla "Acerca de" ni versión visible. Se agrega con el primer release |
 | **`versiones.md`** | ❌ todavía | Hasta la primera instalación con datos |
 | **Respaldo cifrado + catálogo compartible** | ❌ | En `TODO.md`. Antes del primer release con datos reales |
 | **Exportar a Descargas por MediaStore** | ❌ | En `TODO.md`. Hoy el PDF va a documentos de la app |
 | **Fuentes Noto con ₡ en el PDF** | ✅ | Copiadas de tiketing (`assets/fonts/`) |
-| **Libros rodantes (SQLite adjuntable)** | ❌ a propósito | Cien filas al año no lo justifican. El esquema es el mismo, así que se puede adoptar después sin migrar datos |
+| **Libros rodantes (SQLite adjuntable)** — la "máquina de escribir" | ✅ | Un libro por año, ADR 0007. Primero se dejó fuera por volumen; el dueño lo corrigió: es longevidad, no rendimiento. Y acá los cerrados se leen sin restaurar, que en tiketing quedó pendiente |
 | **Harness flutter_driver + MCP** | ❌ | Cuando haya aparato real |
 | **Wulfenite-UI** (laca, pozos, retícula, rail, diálogo, iconos, foco) | ✅ | `wulf_flutter` por ruta, acento jade. Es la primera app que nace con la librería |
 | **Ajustes**: tema, acento, efectos apagables | ✅ | `shared_preferences`, no SQLite |

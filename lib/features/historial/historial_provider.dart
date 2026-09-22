@@ -1,29 +1,41 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../core/db/db_providers.dart';
+import '../../core/mes.dart';
 import '../compra/compra_dao.dart';
 import '../compra/compra_model.dart';
+import '../compra/libro_compras.dart';
 import '../compra/resumen_compra.dart';
 
-/// Un mes del calendario, como clave de familia.
-class Mes {
-  const Mes(this.anio, this.mes);
-  final int anio;
-  final int mes;
+export '../../core/mes.dart';
 
-  DateTime get primero => DateTime(anio, mes);
-  DateTime get siguiente => DateTime(anio, mes + 1);
-
-  @override
-  bool operator ==(Object other) => other is Mes && other.anio == anio && other.mes == mes;
-  @override
-  int get hashCode => Object.hash(anio, mes);
+/// Ejecuta [leer] contra el libro que cubre [mes]: la base principal si es el
+/// libro abierto (está adjunto), o el archivo cerrado de ese año abierto solo
+/// para leer y cerrado al terminar. Es lo que hace que mirar 2024 no
+/// requiera restaurar nada (decisión 0007).
+Future<T> _enElLibroDe<T>(Ref ref, Mes mes, T Function() vacio, Future<T> Function(DatabaseExecutor) leer) async {
+  final db = await ref.watch(databaseProvider.future);
+  final libros = await ref.watch(libroComprasServiceProvider.future);
+  final libro = await libros.libroDe(db, mes);
+  if (libro == null) return vacio();
+  if (!libro.cerrado) return leer(db);
+  final cerrado = await libros.abrirParaLeer(libro);
+  try {
+    return await leer(cerrado);
+  } finally {
+    await cerrado.close();
+  }
 }
 
 /// Las compras finalizadas de un mes. Solo lectura: el historial no se edita.
-final comprasDelMesProvider = FutureProvider.family<List<Compra>, Mes>((ref, mes) async {
-  final dao = CompraDao(await ref.watch(databaseProvider.future));
-  return dao.finalizadasEntre(mes.primero, mes.siguiente);
+final comprasDelMesProvider = FutureProvider.family<List<Compra>, Mes>((ref, mes) {
+  return _enElLibroDe(
+    ref,
+    mes,
+    () => const [],
+    (db) => CompraDao(db).finalizadasEntre(mes.primero, mes.siguiente),
+  );
 });
 
 /// Una compra cerrada con sus líneas y sus cuentas, para el detalle y el PDF.
@@ -34,9 +46,24 @@ class CompraDetallada {
   ResumenCompra get resumen => ResumenCompra(lineas, presupuesto: compra.presupuesto);
 }
 
-final compraDetalladaProvider = FutureProvider.family<CompraDetallada?, String>((ref, id) async {
-  final dao = CompraDao(await ref.watch(databaseProvider.future));
-  final compra = await dao.obtener(id);
-  if (compra == null) return null;
-  return CompraDetallada(compra: compra, lineas: await dao.lineasDe(id));
+/// Con qué libro buscarla: el año de su fecha. Sin el mes la búsqueda tendría
+/// que abrir todos los libros cerrados uno por uno.
+class ClaveDeCompra {
+  const ClaveDeCompra(this.id, this.mes);
+  final String id;
+  final Mes mes;
+
+  @override
+  bool operator ==(Object other) => other is ClaveDeCompra && other.id == id && other.mes == mes;
+  @override
+  int get hashCode => Object.hash(id, mes);
+}
+
+final compraDetalladaProvider = FutureProvider.family<CompraDetallada?, ClaveDeCompra>((ref, clave) {
+  return _enElLibroDe(ref, clave.mes, () => null, (db) async {
+    final dao = CompraDao(db);
+    final compra = await dao.obtener(clave.id);
+    if (compra == null) return null;
+    return CompraDetallada(compra: compra, lineas: await dao.lineasDe(clave.id));
+  });
 });

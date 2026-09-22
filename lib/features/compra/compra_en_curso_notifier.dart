@@ -8,6 +8,7 @@ import '../producto/producto_notifier.dart';
 import '../tienda/tienda_model.dart';
 import 'compra_dao.dart';
 import 'compra_model.dart';
+import 'libro_compras.dart';
 import 'resumen_compra.dart';
 
 const _uuid = Uuid();
@@ -52,6 +53,12 @@ class CompraEnCursoNotifier extends AsyncNotifier<EstadoCompraEnCurso> {
     final abierta = await dao.enCurso();
     if (abierta != null) return abierta;
     final ahora = DateTime.now();
+    // ANTES de insertar: deja adjunto el libro del año, rotando si cambió
+    // (decisión 0007). Se rota al abrir la compra y no al cerrarla, para que
+    // nunca quede partida entre dos libros.
+    final db = await ref.read(databaseProvider.future);
+    final libros = await ref.read(libroComprasServiceProvider.future);
+    await libros.prepararPara(db, ahora);
     final nueva = Compra(id: _uuid.v4(), iniciadaEn: ahora, updatedAt: ahora);
     await dao.insertarCompra(nueva);
     return nueva;
@@ -162,6 +169,10 @@ class CompraEnCursoNotifier extends AsyncNotifier<EstadoCompraEnCurso> {
       updatedAt: ahora,
     );
     await dao.actualizarCompra(cerrada);
+    // El libro lleva la cuenta de sus días con compras; se recuenta, no se
+    // incrementa, para que dé igual cuántas veces se llame.
+    final libros = await ref.read(libroComprasServiceProvider.future);
+    await libros.recontarDias(await ref.read(databaseProvider.future));
     ref.invalidate(comprasDelMesProvider);
     state = AsyncData(await _leer(dao));
     return cerrada;

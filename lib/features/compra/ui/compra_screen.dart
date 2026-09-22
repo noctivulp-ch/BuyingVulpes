@@ -46,12 +46,12 @@ class CompraScreen extends ConsumerWidget {
     if (cerrada == null || !context.mounted) return;
     // El PDF se genera al finalizar, no cuando se pide: así el desglose existe
     // desde el primer momento y abrirlo después es abrir un archivo.
-    final detalle = await ref.read(compraDetalladaProvider(cerrada.id).future);
+    final detalle = await ref.read(compraDetalladaProvider(ClaveDeCompra(cerrada.id, Mes.de(cerrada.finalizadaEn!))).future);
     if (detalle != null) await FacturaPdfService().generar(detalle);
     if (!context.mounted) return;
     mostrarAviso(context, 'Compra guardada en el historial');
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => DetalleCompraScreen(compraId: cerrada.id)),
+      MaterialPageRoute<void>(builder: (_) => DetalleCompraScreen(clave: ClaveDeCompra(cerrada.id, Mes.de(cerrada.finalizadaEn!)))),
     );
   }
 

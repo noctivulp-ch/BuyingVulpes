@@ -4,7 +4,10 @@ import 'package:buying_vulpes/core/db/db_providers.dart';
 import 'package:buying_vulpes/features/compra/compra_model.dart';
 import 'package:buying_vulpes/features/historial/factura_pdf_service.dart';
 import 'package:buying_vulpes/features/historial/historial_provider.dart';
+import 'dart:io';
+
 import 'package:buying_vulpes/core/medida.dart';
+import 'package:buying_vulpes/features/compra/libro_compras.dart';
 import 'package:buying_vulpes/features/configuracion/preferencias_notifier.dart';
 import 'package:buying_vulpes/features/historial/ui/calendario_mes.dart';
 import 'package:flutter/material.dart';
@@ -56,13 +59,23 @@ void main() {
       options: OpenDatabaseOptions(singleInstance: false),
     );
     await AppDatabase.crearEsquema(db);
-    final container = ProviderContainer(overrides: [databaseProvider.overrideWith((ref) async => db)]);
+    final carpeta = Directory.systemTemp.createTempSync('bv-pantallas');
+    final libros = LibroComprasService(directorio: carpeta.path);
+    await libros.adjuntarAbierto(db);
+    final container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWith((ref) async => db),
+        libroComprasServiceProvider.overrideWith((ref) async => libros),
+      ],
+    );
     addTearDown(() async {
       container.dispose();
       // Que terminen las consultas en vuelo antes de cerrar: cerrar con una
       // pendiente lanza "already been closed" después de la prueba.
       await Future<void>.delayed(const Duration(milliseconds: 100));
+      await libros.desadjuntar(db);
       await db.close();
+      carpeta.deleteSync(recursive: true);
     });
     await tester.pumpWidget(
       UncontrolledProviderScope(

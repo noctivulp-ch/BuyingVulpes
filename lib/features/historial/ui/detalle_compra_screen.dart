@@ -12,8 +12,8 @@ import '../historial_provider.dart';
 
 /// Una compra cerrada: por tienda, con lo comprado y lo que no, y el PDF.
 class DetalleCompraScreen extends ConsumerWidget {
-  const DetalleCompraScreen({super.key, required this.compraId});
-  final String compraId;
+  const DetalleCompraScreen({super.key, required this.clave});
+  final ClaveDeCompra clave;
 
   Future<void> _abrirPdf(BuildContext context, CompraDetallada detalle) async {
     final archivo = await FacturaPdfService().generar(detalle);
@@ -27,7 +27,7 @@ class DetalleCompraScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detalle = ref.watch(compraDetalladaProvider(compraId));
+    final detalle = ref.watch(compraDetalladaProvider(clave));
     return Scaffold(
       appBar: AppBar(
         title: const Text('Compra'),
