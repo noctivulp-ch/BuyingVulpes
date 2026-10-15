@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- La cámara solo para sacarle la foto a un producto. Sin cámara la app
+         sirve entera: queda la galería, que llega por el selector del sistema
+         y no necesita permiso de almacenamiento. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <application
-        android:label="buying_vulpes"
+        android:label="BuyingVulpes"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
