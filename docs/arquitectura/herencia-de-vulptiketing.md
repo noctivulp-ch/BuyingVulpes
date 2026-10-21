@@ -2,9 +2,8 @@
 
 El dueño preguntó, al ver la primera versión, si el "estilo de base de datos
 de máquina de escribir" y lo demás pulido en VulpTiketing estaba acá. Esta es
-la respuesta, concepto por concepto. Los conceptos están escritos como notas
-reutilizables en el vault (`Obsidia/AppCreator/conceptos/`, empezar por
-`arrancar-una-app-de-la-casa`).
+la respuesta, concepto por concepto. Los conceptos están documentados como notas
+reutilizables en la documentación interna de NoctiVulp.
 
 | Concepto | Acá | Cómo, o por qué no |
 |---|---|---|
