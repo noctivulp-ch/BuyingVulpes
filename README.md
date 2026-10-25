@@ -19,6 +19,16 @@ medida; la lista se recorre con casillas que pasan cada artículo al carrito, y 
 compara con el presupuesto mientras se compra. Al terminar, la compra queda archivada en un
 calendario con su desglose en PDF.
 
+<p align="center">
+  <img src="docs/capturas/compra-claro-oscuro.png" width="100%" alt="Lista de compra, mitad en tema claro y mitad en oscuro">
+</p>
+<p align="center">
+  <img src="docs/capturas/compra-oscuro-oro.png" width="49%" alt="Lista de compra en tema oscuro con acento oro">
+  <img src="docs/capturas/compra-claro-jade.png" width="49%" alt="Lista de compra en tema claro con acento jade">
+</p>
+
+<p align="center"><sub>Datos de demostración. Las capturas se regeneran con <code>tools/capturas/capturas.sh</code>.</sub></p>
+
 ## Funciones principales
 
 - Catálogo de productos por tienda, con precio por unidad, peso o volumen.
